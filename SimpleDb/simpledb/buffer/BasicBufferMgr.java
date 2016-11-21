@@ -1,6 +1,8 @@
 package simpledb.buffer;
 
 import simpledb.file.*;
+import java.util.HashMap;
+
 
 /**
  * Manages the pinning and unpinning of buffers to blocks.
@@ -10,6 +12,11 @@ import simpledb.file.*;
 class BasicBufferMgr {
    private Buffer[] bufferpool;
    private int numAvailable;
+   /*
+    * author Animesh
+    * creating a HashMap to track Buffer Pool
+    */
+   private HashMap<Block, Buffer> bufferPoolMap;
    
    /**
     * Creates a buffer manager having the specified number 
@@ -27,6 +34,8 @@ class BasicBufferMgr {
    BasicBufferMgr(int numbuffs) {
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
+      //Initialing the bufferPoolMap
+      bufferPoolMap = new HashMap<Block, Buffer>();
       for (int i=0; i<numbuffs; i++)
          bufferpool[i] = new Buffer();
    }
@@ -36,9 +45,16 @@ class BasicBufferMgr {
     * @param txnum the transaction's id number
     */
    synchronized void flushAll(int txnum) {
-      for (Buffer buff : bufferpool)
+      /*for (Buffer buff : bufferpool)
          if (buff.isModifiedBy(txnum))
-         buff.flush();
+         buff.flush();*/
+	   /*
+	    * author Animesh
+	    * Changing the model for clearing the buffer
+	    */
+	   for(Buffer buffer : bufferPoolMap.values())
+		   if(buffer.isModifiedBy(txnum))
+			   buffer.flush();
    }
    
    /**

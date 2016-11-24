@@ -3,6 +3,7 @@ package simpledb.server;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Map;
 
 import simpledb.buffer.Buffer;
 import simpledb.buffer.BufferAbortException;
@@ -45,11 +46,17 @@ public class TestSimpleDB {
 			Block blk6 = new Block("filename", 6);
 			Block blk7 = new Block("filename", 7);
 			Block blk8 = new Block("filename", 8);
+			Block blk9 = new Block("filename", 9);
+			Block blk10 = new Block("filename", 10);
 
 			// Creating a basicBufferMgr
 			BufferMgr basicBufferMgr = new SimpleDB().bufferMgr();
-
+			
+			// Existing pool
+			System.out.println("Existing buffer pool: ");
+			printBufferPool(basicBufferMgr);
 			// Pin a Block
+			System.out.println("pinning blocks");
 			Buffer buff1 = basicBufferMgr.pin(blk1);
 			Buffer buff2 = basicBufferMgr.pin(blk2);
 			Buffer buff3 = basicBufferMgr.pin(blk3);
@@ -58,19 +65,36 @@ public class TestSimpleDB {
 			Buffer buff6 = basicBufferMgr.pin(blk6);
 			Buffer buff7 = basicBufferMgr.pin(blk7);
 			Buffer buff8 = basicBufferMgr.pin(blk8);
+			// System.out.println("Pinning 9");
+			// Buffer buff9 = basicBufferMgr.pin(blk9);
+			System.out.println("After setting 8 blocks in buffer pool:");
+			printBufferPool(basicBufferMgr);
 
-			// Unpin a Block
-			basicBufferMgr.unpin(buff3);
-			basicBufferMgr.unpin(buff2);
-
-			// Catching Buffer Exception
-			basicBufferMgr.pin(blk1);
+//			System.out.println("unpinning blocks");
+//			// Unpin a Block
+//			basicBufferMgr.unpin(buff3);
+//			basicBufferMgr.unpin(buff2);
+//			System.out.println("After unpinning in buffer pool:");
+//			printBufferPool(basicBufferMgr);
+//
+//			System.out.println("pinning block 9 now 2 should be replaced.");
+//			// Catching Buffer Exception
+//			basicBufferMgr.pin(blk9);
+//			System.out.println("After Block replacement in buffer pool:");
+//			printBufferPool(basicBufferMgr);
 
 		} catch (BufferAbortException e) {
 			System.out.println("BufferAbortException: " + e.getStackTrace());
 		} catch (RemoteException e) {
 			System.out.println("RemoteException: " + e.getStackTrace());
 		}
+	}
+
+	private static void printBufferPool(BufferMgr basicBufferMgr) {
+		for (Map.Entry<Block, Buffer> e : basicBufferMgr.getBufferPoolMap().entrySet()) {
+			System.out.print(e.getKey() + " = " + e.getValue() + "\t");
+		}
+		System.out.println("");
 	}
 
 }

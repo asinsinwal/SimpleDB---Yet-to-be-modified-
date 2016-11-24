@@ -78,9 +78,11 @@ class BasicBufferMgr {
 			// return null;
 			buff.assignToBlock(blk);
 		}
+		
 		if (!buff.isPinned())
 			numAvailable--;
 		buff.pin();
+		bufferPoolMap.put(blk, buff);
 		return buff;
 	}
 
@@ -102,6 +104,7 @@ class BasicBufferMgr {
 		buff.assignToNew(filename, fmtr);
 		numAvailable--;
 		buff.pin();
+		bufferPoolMap.put(buff.block(), buff);
 		return buff;
 	}
 
@@ -153,9 +156,15 @@ class BasicBufferMgr {
 		 * Changes to implement the buffer pool using LinkedHashMap
 		 */
 		if (numAvailable > 0) {
-			for (Map.Entry<Block, Buffer> e : bufferPoolMap.entrySet()) {
-				if (!e.getValue().isPinned()) {
-					return e.getValue();
+			if (bufferPoolMap.size() < 8) {
+				Buffer buff = new Buffer();
+				bufferPoolMap.put(null, buff);
+				return buff;
+			} else {
+				for (Map.Entry<Block, Buffer> e : bufferPoolMap.entrySet()) {
+					if (!e.getValue().isPinned()) {
+						return e.getValue();
+					}
 				}
 			}
 		}
@@ -164,5 +173,12 @@ class BasicBufferMgr {
 		// if (!buff.isPinned())
 		// return buff;
 		// return null;
+	}
+
+	/**
+	 * @return the bufferPoolMap
+	 */
+	public Map<Block, Buffer> getBufferPoolMap() {
+		return bufferPoolMap;
 	}
 }

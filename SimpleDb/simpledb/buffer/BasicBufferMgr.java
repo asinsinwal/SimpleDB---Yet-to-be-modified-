@@ -13,12 +13,12 @@ import simpledb.file.FileMgr;
  *
  */
 class BasicBufferMgr {
-	// private Buffer[] bufferpool; //HashMap needs to be used here.
-	private int numAvailable; // buffer size -> decided by server
+	// private Buffer[] bufferpool;
+	private int numAvailable;
 	/*
 	 * author Animesh creating a HashMap to track Buffer Pool
 	 */
-	private Map<Block, Buffer> bufferPoolMap;
+	private static final Map<Block, Buffer> bufferPoolMap = new LinkedHashMap<Block, Buffer>();
 
 	/**
 	 * Creates a buffer manager having the specified number of buffer slots.
@@ -36,7 +36,7 @@ class BasicBufferMgr {
 		// bufferpool = new Buffer[numbuffs];
 		numAvailable = numbuffs;
 		// Initialing the bufferPoolMap
-		bufferPoolMap = new LinkedHashMap<Block, Buffer>();
+		// bufferPoolMap = new LinkedHashMap<Block, Buffer>(numbuffs);
 		// for (int i=0; i<numbuffs; i++)
 		// bufferpool[i] = new Buffer();
 	}
@@ -55,9 +55,11 @@ class BasicBufferMgr {
 		/*
 		 * author Animesh Changing the model for clearing the buffer
 		 */
-		for (Buffer buffer : bufferPoolMap.values())
-			if (buffer.isModifiedBy(txnum))
+		for (Buffer buffer : bufferPoolMap.values()) {
+			if (buffer.isModifiedBy(txnum)) {
 				buffer.flush();
+			}
+		}
 	}
 
 	/**
@@ -76,12 +78,15 @@ class BasicBufferMgr {
 			buff = chooseUnpinnedBuffer();
 			// if (buff == null)
 			// return null;
+			bufferPoolMap.remove(buff.block());
 			buff.assignToBlock(blk);
 		}
-		
+
 		if (!buff.isPinned())
 			numAvailable--;
 		buff.pin();
+		// System.out.println("\t\tPutting this in poolMap: " + blk.toString() +
+		// " = " + buff.toString());
 		bufferPoolMap.put(blk, buff);
 		return buff;
 	}
@@ -99,11 +104,14 @@ class BasicBufferMgr {
 	 */
 	synchronized Buffer pinNew(String filename, PageFormatter fmtr) throws BufferAbortException {
 		Buffer buff = chooseUnpinnedBuffer();
+		bufferPoolMap.remove(buff.block());
 		// if (buff == null)
 		// return null;
 		buff.assignToNew(filename, fmtr);
 		numAvailable--;
 		buff.pin();
+		// System.out.println("\t\tPutting this in poolMap: " +
+		// buff.block().toString() + " = " + buff.toString());
 		bufferPoolMap.put(buff.block(), buff);
 		return buff;
 	}
@@ -155,14 +163,21 @@ class BasicBufferMgr {
 		/**
 		 * Changes to implement the buffer pool using LinkedHashMap
 		 */
+		// System.out.println("\t\tsize of bufferPoolMap while choosing unpinned
+		// buffer: " + bufferPoolMap.size());
 		if (numAvailable > 0) {
 			if (bufferPoolMap.size() < 8) {
 				Buffer buff = new Buffer();
-				bufferPoolMap.put(null, buff);
+				// bufferPoolMap.put(null, buff);
+				// System.out.println("\t\t\tcreating new buffer as size is
+				// within limit");
 				return buff;
 			} else {
+				// System.out.println("\t\t\treturning existing buffer.");
 				for (Map.Entry<Block, Buffer> e : bufferPoolMap.entrySet()) {
 					if (!e.getValue().isPinned()) {
+						// System.out.println("\t\t\treturning pinned Buffer: "
+						// + e.getKey());
 						return e.getValue();
 					}
 				}

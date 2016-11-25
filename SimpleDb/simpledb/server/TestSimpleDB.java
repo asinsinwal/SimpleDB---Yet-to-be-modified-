@@ -51,50 +51,60 @@ public class TestSimpleDB {
 
 			// Creating a basicBufferMgr
 			BufferMgr basicBufferMgr = new SimpleDB().bufferMgr();
-			
+
 			// Existing pool
 			System.out.println("Existing buffer pool: ");
 			printBufferPool(basicBufferMgr);
 			// Pin a Block
-			System.out.println("pinning blocks");
+			System.out.println("pinning blocks:");
+			System.out.println("\tpinning 1");
 			Buffer buff1 = basicBufferMgr.pin(blk1);
+			System.out.println("\tpinning 2");
 			Buffer buff2 = basicBufferMgr.pin(blk2);
+			System.out.println("\tpinning 3");
 			Buffer buff3 = basicBufferMgr.pin(blk3);
+			System.out.println("\tpinning 4");
 			Buffer buff4 = basicBufferMgr.pin(blk4);
+			System.out.println("\tpinning 5");
 			Buffer buff5 = basicBufferMgr.pin(blk5);
+			System.out.println("\tpinning 6");
 			Buffer buff6 = basicBufferMgr.pin(blk6);
+			System.out.println("\tpinning 7");
 			Buffer buff7 = basicBufferMgr.pin(blk7);
+			System.out.println("\tpinning 8");
 			Buffer buff8 = basicBufferMgr.pin(blk8);
 			// System.out.println("Pinning 9");
 			// Buffer buff9 = basicBufferMgr.pin(blk9);
 			System.out.println("After setting 8 blocks in buffer pool:");
 			printBufferPool(basicBufferMgr);
 
-//			System.out.println("unpinning blocks");
-//			// Unpin a Block
-//			basicBufferMgr.unpin(buff3);
-//			basicBufferMgr.unpin(buff2);
-//			System.out.println("After unpinning in buffer pool:");
-//			printBufferPool(basicBufferMgr);
-//
-//			System.out.println("pinning block 9 now 2 should be replaced.");
-//			// Catching Buffer Exception
-//			basicBufferMgr.pin(blk9);
-//			System.out.println("After Block replacement in buffer pool:");
-//			printBufferPool(basicBufferMgr);
+			System.out.println("unpinning blocks");
+			// Unpin a Block
+			basicBufferMgr.unpin(buff3);
+			basicBufferMgr.unpin(buff2);
+			System.out.println("After unpinning in buffer pool:");
+			printBufferPool(basicBufferMgr);
+
+			System.out.println("pinning block 9 now 2 should be replaced.");
+			// Catching Buffer Exception
+			basicBufferMgr.pin(blk9);
+			System.out.println("After Block replacement in buffer pool:");
+			printBufferPool(basicBufferMgr);
 
 		} catch (BufferAbortException e) {
-			System.out.println("BufferAbortException: " + e.getStackTrace());
+			System.out.println("BufferAbortException: ");
+			e.printStackTrace();
 		} catch (RemoteException e) {
-			System.out.println("RemoteException: " + e.getStackTrace());
+			System.out.println("RemoteException: ");
+			e.printStackTrace();
 		}
 	}
 
 	private static void printBufferPool(BufferMgr basicBufferMgr) {
+		int i=0;
 		for (Map.Entry<Block, Buffer> e : basicBufferMgr.getBufferPoolMap().entrySet()) {
-			System.out.print(e.getKey() + " = " + e.getValue() + "\t");
+			System.out.println("\t" + i++ + "): [" + e.getKey().toString() + "] = [" + e.getValue().toString() + "]\t");
 		}
-		System.out.println("");
 	}
 
 }

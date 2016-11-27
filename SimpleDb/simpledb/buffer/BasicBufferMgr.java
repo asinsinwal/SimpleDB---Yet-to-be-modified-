@@ -13,8 +13,9 @@ import simpledb.file.FileMgr;
  *
  */
 class BasicBufferMgr {
-	// private Buffer[] bufferpool;
+//	 private Buffer[] bufferpool;
 	private int numAvailable;
+	private int bufferPoolSize;
 	/*
 	 * author Animesh creating a HashMap to track Buffer Pool
 	 */
@@ -35,6 +36,7 @@ class BasicBufferMgr {
 	BasicBufferMgr(int numbuffs) {
 		// bufferpool = new Buffer[numbuffs];
 		numAvailable = numbuffs;
+		bufferPoolSize = numbuffs;
 		// Initialing the bufferPoolMap
 		// bufferPoolMap = new LinkedHashMap<Block, Buffer>(numbuffs);
 		// for (int i=0; i<numbuffs; i++)
@@ -166,7 +168,7 @@ class BasicBufferMgr {
 		// System.out.println("\t\tsize of bufferPoolMap while choosing unpinned
 		// buffer: " + bufferPoolMap.size());
 		if (numAvailable > 0) {
-			if (bufferPoolMap.size() < 8) {
+			if (bufferPoolMap.size() < bufferPoolSize) {
 				Buffer buff = new Buffer();
 				// bufferPoolMap.put(null, buff);
 				// System.out.println("\t\t\tcreating new buffer as size is

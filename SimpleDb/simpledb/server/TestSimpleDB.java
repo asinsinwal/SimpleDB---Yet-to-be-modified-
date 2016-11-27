@@ -101,9 +101,9 @@ public class TestSimpleDB {
 	}
 
 	private static void printBufferPool(BufferMgr basicBufferMgr) {
-		int i=0;
+		int i = 0;
 		for (Map.Entry<Block, Buffer> e : basicBufferMgr.getBufferPoolMap().entrySet()) {
-			System.out.println("\t" + i++ + "): [" + e.getKey().toString() + "] = [" + e.getValue().toString() + "]\t");
+			System.out.println("\t" + i++ + "): " + e.getKey().toString() + " = [" + e.getValue().toString() + "]\t");
 		}
 	}
 

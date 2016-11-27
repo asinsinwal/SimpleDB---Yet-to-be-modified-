@@ -41,6 +41,12 @@ public class BasicLogRecord {
       return result;
    }
    
+   public int prevInt() {
+	      int result = pg.getInt(pos);
+	      pos -= INT_SIZE;
+	      return result;
+	   }
+   
    /**
     * Returns the next value of the current log record, 
     * assuming it is a string.
@@ -51,4 +57,10 @@ public class BasicLogRecord {
       pos += STR_SIZE(result.length());
       return result;
    }
+   public String prevString() {
+	      String result = pg.getString(pos);
+	      pos -= STR_SIZE(result.length());
+	      return result;
+	   }
+   
 }

@@ -67,7 +67,7 @@ public class RecoveryMgr {
       if (isTempBlock(blk))
          return -1;
       else
-         return new SetIntRecord(txnum, blk, offset, oldval).writeToLog();
+         return new SetIntRecord(txnum, blk, offset, oldval, newval).writeToLog();
    }
 
    /**
@@ -84,7 +84,7 @@ public class RecoveryMgr {
       if (isTempBlock(blk))
          return -1;
       else
-         return new SetStringRecord(txnum, blk, offset, oldval).writeToLog();
+         return new SetStringRecord(txnum, blk, offset, oldval, newval).writeToLog();
    }
 
    /**
@@ -125,6 +125,14 @@ public class RecoveryMgr {
             finishedTxs.add(rec.txNumber());
          else if (!finishedTxs.contains(rec.txNumber()))
             rec.undo(txnum);
+      }
+      /*iter for redo*/
+      while (iter.hasNext()){
+    	  LogRecord rec = iter.next(); 
+    	  if (rec.op() == CHECKPOINT)
+              return;
+    	  if (finishedTxs.contains(rec.txNumber()))
+    		  rec.redo(txnum);
       }
    }
 

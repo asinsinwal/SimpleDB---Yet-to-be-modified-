@@ -48,6 +48,7 @@ class CheckpointRecord implements LogRecord {
     * contains no undo information.
     */
    public void undo(int txnum) {}
+   public void redo(int txnum) {}
    
    public String toString() {
       return "<CHECKPOINT>";

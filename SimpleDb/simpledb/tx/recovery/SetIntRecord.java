@@ -6,7 +6,7 @@ import simpledb.file.Block;
 import simpledb.log.BasicLogRecord;
 
 class SetIntRecord implements LogRecord {
-   private int txnum, offset, val;
+   private int txnum, offset, val, nval;
    private Block blk;
 
    /**
@@ -16,11 +16,12 @@ class SetIntRecord implements LogRecord {
     * @param offset the offset of the value in the block
     * @param val the new value
     */
-   public SetIntRecord(int txnum, Block blk, int offset, int val) {
+   public SetIntRecord(int txnum, Block blk, int offset, int val, int nval) {
       this.txnum = txnum;
       this.blk = blk;
       this.offset = offset;
       this.val = val;
+      this.nval = nval;
    }
 
    /**
@@ -34,6 +35,7 @@ class SetIntRecord implements LogRecord {
       blk = new Block(filename, blknum);
       offset = rec.nextInt();
       val = rec.nextInt();
+      nval = rec.prevInt();
    }
 
    /**
@@ -75,4 +77,11 @@ class SetIntRecord implements LogRecord {
       buff.setInt(offset, val, txnum, -1);
       buffMgr.unpin(buff);
    }
+   public void redo(int txnum) {
+	      BufferMgr buffMgr = SimpleDB.bufferMgr();
+	      Buffer buff = buffMgr.pin(blk);
+	      buff.setInt(offset, nval, txnum, 1);
+	      buffMgr.unpin(buff);
+	   }   
+   
 }

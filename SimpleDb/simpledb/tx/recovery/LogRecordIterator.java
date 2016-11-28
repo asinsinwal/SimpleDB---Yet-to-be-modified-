@@ -49,6 +49,7 @@ class LogRecordIterator implements Iterator<LogRecord> {
             return null;
       }
    } 
+  
    
    public void remove() {
       throw new UnsupportedOperationException();

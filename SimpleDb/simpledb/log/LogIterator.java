@@ -53,6 +53,8 @@ class LogIterator implements Iterator<BasicLogRecord> {
 		return new BasicLogRecord(pg, currentrec + INT_SIZE);
 	}
 
+
+	
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

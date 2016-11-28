@@ -121,19 +121,33 @@ public class RecoveryMgr {
          LogRecord rec = iter.next();
          if (rec.op() == CHECKPOINT)
             return;
-         if (rec.op() == COMMIT || rec.op() == ROLLBACK)
+         if (rec.op() == COMMIT || rec.op() == ROLLBACK){
             finishedTxs.add(rec.txNumber());
-         else if (!finishedTxs.contains(rec.txNumber()))
-            rec.undo(txnum);
+            
+         	System.out.println("finished TXs");
+         	System.out.println(finishedTxs);
+         }
+         else if (!finishedTxs.contains(rec.txNumber())){
+       	  System.out.println("Undo Now");
+
+        	 rec.undo(txnum);
       }
-      /*iter for redo*/
-      while (iter.hasNext()){
-    	  LogRecord rec = iter.next(); 
-    	  if (rec.op() == CHECKPOINT)
-              return;
-    	  if (finishedTxs.contains(rec.txNumber()))
-    		  rec.redo(txnum);
       }
+	  System.out.println("Now TXsssssss");
+
+      for(int veh : finishedTxs){
+    	  System.out.println("TXsssssss");
+    	  System.out.println(veh);
+      }
+//      /*iter for redo*/
+//      Iterator<LogRecord> iter1 = new LogRecordIterator();
+//      while (iter1.hasNext()){
+//    	  LogRecord rec = iter1.next1(); 
+//    	  if (rec.op() == CHECKPOINT)
+//              return;
+//    	  if (finishedTxs.contains(rec.txNumber()))
+//    		  rec.redo(txnum);
+//      }
    }
 
    /**

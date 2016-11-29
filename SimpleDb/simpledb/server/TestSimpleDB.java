@@ -37,57 +37,45 @@ public class TestSimpleDB {
 
 			System.out.println("database server ready");
 
-			// Creating a Block -
-			Block blk1 = new Block("filename", 1);
-			Block blk2 = new Block("filename", 2);
-			Block blk3 = new Block("filename", 3);
-			Block blk4 = new Block("filename", 4);
-			Block blk5 = new Block("filename", 5);
-			Block blk6 = new Block("filename", 6);
-			Block blk7 = new Block("filename", 7);
-			Block blk8 = new Block("filename", 8);
-			Block blk9 = new Block("filename", 9);
-			Block blk10 = new Block("filename", 10);
-
 			// Creating a basicBufferMgr
 			BufferMgr basicBufferMgr = new SimpleDB().bufferMgr();
 
 			// Existing pool
 			System.out.println("Existing buffer pool: ");
-//			printBufferPool(basicBufferMgr);
-			// Pin a Block
-			System.out.println("pinning blocks:");
-			System.out.println("\tpinning 1");
-			Buffer buff1 = basicBufferMgr.pin(blk1);
-			System.out.println("\tpinning 2");
-			Buffer buff2 = basicBufferMgr.pin(blk2);
-			System.out.println("\tpinning 3");
-			Buffer buff3 = basicBufferMgr.pin(blk3);
-			System.out.println("\tpinning 4");
-			Buffer buff4 = basicBufferMgr.pin(blk4);
-			System.out.println("\tpinning 5");
-			Buffer buff5 = basicBufferMgr.pin(blk5);
-			System.out.println("\tpinning 6");
-			Buffer buff6 = basicBufferMgr.pin(blk6);
-			System.out.println("\tpinning 7");
-			Buffer buff7 = basicBufferMgr.pin(blk7);
-			System.out.println("\tpinning 8");
-			Buffer buff8 = basicBufferMgr.pin(blk8);
-			System.out.println("After setting 8 blocks in buffer pool:");
-//			printBufferPool(basicBufferMgr);
+			printBufferPool(basicBufferMgr);
 
-			System.out.println("unpinning blocks");
-			// Unpin a Block
-			basicBufferMgr.unpin(buff3);
-			basicBufferMgr.unpin(buff2);     
+			System.out.println("Creating 10 Blocks");
+			Block[] blocks = new Block[10];
+			for (int i = 0; i < 10; i++) {
+				System.out.println("\tCreating Block " + (i));
+				blocks[i] = new Block("filename", i);
+			}
+
+			System.out.println("Pinning the Blocks");
+			Buffer[] buffers = new Buffer[8];
+			for (int i = 0; i < 8; i++) {
+				Block blk = blocks[i];
+				System.out.println("\tPinning Block " + blk);
+				Buffer buf = basicBufferMgr.pin(blk);
+				System.out.println("\tBlock Pinned to Buffer " + buf);
+				buffers[i] = buf;
+			}
+
+			System.out.println("After setting 8 blocks in buffer pool:");
+			printBufferPool(basicBufferMgr);
+
+			System.out.println("Unpining Blocks");
+			System.out.println("\tUnpining Block 2");
+			basicBufferMgr.unpin(buffers[2]);
+			System.out.println("\tUnpining Block 1");
+			basicBufferMgr.unpin(buffers[1]);
 			System.out.println("After unpinning in buffer pool:");
 			printBufferPool(basicBufferMgr);
 
-			System.out.println("pinning block 9 now 2 should be replaced.");
-			// Catching Buffer Exception
-			basicBufferMgr.pin(blk9);
+			System.out.println("pinning block 8 now 1 should be replaced.");
+			basicBufferMgr.pin(blocks[8]);
 			System.out.println("After Block replacement in buffer pool:");
-//			printBufferPool(basicBufferMgr);
+			printBufferPool(basicBufferMgr);
 
 		} catch (BufferAbortException e) {
 			System.out.println("BufferAbortException: ");
@@ -101,7 +89,7 @@ public class TestSimpleDB {
 	private static void printBufferPool(BufferMgr basicBufferMgr) {
 		int i = 0;
 		for (Map.Entry<Block, Buffer> e : basicBufferMgr.getBufferPoolMap().entrySet()) {
-			System.out.println("\t" + i++ + "): " + e.getKey().toString() + " = [" + e.getValue().toString() + "]\t");
+			System.out.println("\t" + ++i + "): " + e.getKey().toString() + " = [" + e.getValue().toString() + "]\t");
 		}
 	}
 

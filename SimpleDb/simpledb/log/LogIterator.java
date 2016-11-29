@@ -93,6 +93,7 @@ class LogIterator implements Iterator<BasicLogRecord> {
 		blk = new Block(blk.fileName(), blk.number() + 1);
 		pg.read(blk);
 		currentrec = pg.getInt(LogMgr.LAST_POS);
+		System.out.println(currentrec);
 	}
 
 }

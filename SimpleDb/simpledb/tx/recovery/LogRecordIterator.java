@@ -15,9 +15,15 @@ import simpledb.server.SimpleDB;
  */
 class LogRecordIterator implements Iterator<LogRecord> {
    private Iterator<BasicLogRecord> iter = SimpleDB.logMgr().iterator();
+   private Iterator<BasicLogRecord> iterFwd = SimpleDB.logMgr().iterator();
    
    public boolean hasNext() {
       return iter.hasNext();
+   }
+   
+   public boolean hasNextForward() {
+//	   return iterFwd.hasNext();
+	   return false;
    }
    
    /**

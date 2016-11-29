@@ -198,6 +198,9 @@ class BasicBufferMgr {
 	public Map<Block, Buffer> getBufferPoolMap() {
 		return bufferPoolMap;
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 }
 

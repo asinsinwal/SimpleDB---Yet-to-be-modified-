@@ -58,8 +58,5 @@ class StartRecord implements LogRecord {
 	 * Does nothing, because a start record contains no redo information.
 	 */
 	@Override
-	public void redo(int txnum) {
-		System.out.println("inside redo of start");
-
-	}
+	public void redo(int txnum) {}
 }

@@ -84,11 +84,11 @@ class SetIntRecord implements LogRecord {
 
 	@Override
 	public void redo(int txnum) {
-		System.out.println("inside redo of set-int");
+		//System.out.println("inside redo of set-int");
 		BufferMgr buffMgr = SimpleDB.bufferMgr();
 		Buffer buff = buffMgr.pin(blk);
 		int newVal = buff.getInt(offset);
-		System.out.println("The new value to set while REDO inside setInt: " + newVal + ", from offset: " + offset);
+		//System.out.println("The new value to set while REDO inside setInt: " + newVal + ", from offset: " + offset);
 		buff.setInt(offset, newVal, txnum, -1);
 		buffMgr.unpin(buff);
 	}

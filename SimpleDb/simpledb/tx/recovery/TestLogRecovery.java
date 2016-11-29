@@ -64,7 +64,7 @@ public class TestLogRecovery {
 		int oldValue = buff.getInt(offset);
 		int oldValue2 = buff2.getInt(offset2);
 		System.out.println("Old Value: " + oldValue);
-		System.out.println("Old Value2: " + oldValue2);
+		//System.out.println("Old Value2: " + oldValue2);
 		int valueToSet = oldValue + 10;
 		int valueToSet2 = oldValue + 20;
 		int lsn = rm.setInt(buff, offset, valueToSet);// buffer, offset, newval
@@ -75,7 +75,7 @@ public class TestLogRecovery {
 		int newValue = buff.getInt(offset);
 		System.out.println("New Value without committing: " + newValue);
 		int newValue2 = buff2.getInt(offset2);
-		System.out.println("New Value2 without committing: " + newValue2);
+		//System.out.println("New Value2 without committing: " + newValue2);
 		// lsn = rm.setInt(buff2, 5, 1234);
 		// buff.setInt(9, 2222, txid, lsn);
 		// Flushing all transactions
@@ -83,14 +83,14 @@ public class TestLogRecovery {
 		// bm.flushAll(txid);
 		// Using Log Record Iterator to print records .
 
-//		rm.commit();
+		rm.commit();
 		rm2.commit();
 		rm3.commit();
 		rm2.recover();
 		newValue = buff.getInt(offset);
 		newValue2 = buff2.getInt(offset2);
 		System.out.println("New Value after recovering: " + newValue);
-		System.out.println("New Value2 after recovering: " + newValue2);
+		//System.out.println("New Value2 after recovering: " + newValue2);
 
 	}
 

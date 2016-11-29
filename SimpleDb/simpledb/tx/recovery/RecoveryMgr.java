@@ -136,7 +136,9 @@ public class RecoveryMgr {
 		Iterator<LogRecord> iter = new LogRecordIterator();
 		List<LogRecord> listRecs = new ArrayList<LogRecord>();
 		while (iter.hasNext()) {
+			if (iter.next() != null){
 			LogRecord rec = iter.next();
+//			System.out.println("rec: " + iter.next());
 			if (rec.op() == CHECKPOINT)
 				// return;
 				break;
@@ -152,20 +154,21 @@ public class RecoveryMgr {
 		// TODO: do a new while loop which reads the log file from START in
 		// forward order from checkpoint.
 		Collections.reverse(listRecs);
-		System.out.println("The entire log from checkpoint (or starting) is: ");
-		for (LogRecord rec : listRecs) {
-			System.out.println("\t\t" + rec.toString());
-		}
-		System.out.println("REdo-ing now");
+//		System.out.println("The entire log from checkpoint (or starting) is: ");
+//		for (LogRecord rec : listRecs) {
+//			System.out.println("\t\t" + rec.toString());
+//		}
+		//System.out.println("REdo-ing now");
 		for (LogRecord rec : listRecs) {
 			boolean nonUpdateRecord = ((rec.op() != COMMIT) && (rec.op() != CHECKPOINT) && (rec.op() != ROLLBACK)
 					&& rec.op() != START);
 //			System.out.println("For txn: " + txnum + "currently reading this record: " + rec.toString() + ", is it on commit list? - " + commitTxns.contains(rec.txNumber()));
 			if (nonUpdateRecord && commitTxns.contains(rec.txNumber())) {
-				System.out.println("This transaction was redo-ed: " + txnum);
+				//System.out.println("This transaction was redo-ed: " + txnum);
 				rec.redo(txnum);
 			}
 		}
+	}
 	}
 
 	/**

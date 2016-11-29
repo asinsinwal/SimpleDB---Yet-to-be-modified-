@@ -1,10 +1,19 @@
 package simpledb.tx.recovery;
 
-import static simpledb.tx.recovery.LogRecord.*;
-import simpledb.file.Block;
+import static simpledb.tx.recovery.LogRecord.CHECKPOINT;
+import static simpledb.tx.recovery.LogRecord.COMMIT;
+import static simpledb.tx.recovery.LogRecord.ROLLBACK;
+import static simpledb.tx.recovery.LogRecord.START;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import simpledb.buffer.Buffer;
+import simpledb.file.Block;
 import simpledb.server.SimpleDB;
-import java.util.*;
 
 /**
  * The recovery manager. Each transaction has its own recovery manager.
@@ -122,16 +131,40 @@ public class RecoveryMgr {
 	 * CHECKPOINT record or the end of the log.
 	 */
 	private void doRecover() {
-		Collection<Integer> finishedTxs = new ArrayList<Integer>();
+		Collection<Integer> rollbackTxns = new ArrayList<Integer>();
+		Collection<Integer> commitTxns = new ArrayList<Integer>();
 		Iterator<LogRecord> iter = new LogRecordIterator();
+		List<LogRecord> listRecs = new ArrayList<LogRecord>();
 		while (iter.hasNext()) {
 			LogRecord rec = iter.next();
 			if (rec.op() == CHECKPOINT)
-				return;
-			if (rec.op() == COMMIT || rec.op() == ROLLBACK)
-				finishedTxs.add(rec.txNumber());
-			else if (!finishedTxs.contains(rec.txNumber()))
+				// return;
+				break;
+			else
+				listRecs.add(rec);
+			if (rec.op() == COMMIT)
+				commitTxns.add(rec.txNumber());
+			if (rec.op() == ROLLBACK)
+				rollbackTxns.add(rec.txNumber());
+			else if (!rollbackTxns.contains(rec.txNumber()) && !commitTxns.contains(rec.txNumber()))
 				rec.undo(txnum);
+		}
+		// TODO: do a new while loop which reads the log file from START in
+		// forward order from checkpoint.
+		Collections.reverse(listRecs);
+		System.out.println("The entire log from checkpoint (or starting) is: ");
+		for (LogRecord rec : listRecs) {
+			System.out.println("\t\t" + rec.toString());
+		}
+		System.out.println("REdo-ing now");
+		for (LogRecord rec : listRecs) {
+			boolean nonUpdateRecord = ((rec.op() != COMMIT) && (rec.op() != CHECKPOINT) && (rec.op() != ROLLBACK)
+					&& rec.op() != START);
+//			System.out.println("For txn: " + txnum + "currently reading this record: " + rec.toString() + ", is it on commit list? - " + commitTxns.contains(rec.txNumber()));
+			if (nonUpdateRecord && commitTxns.contains(rec.txNumber())) {
+				System.out.println("This transaction was redo-ed: " + txnum);
+				rec.redo(txnum);
+			}
 		}
 	}
 

@@ -79,7 +79,13 @@ class SetStringRecord implements LogRecord {
 
 	@Override
 	public void redo(int txnum) {
-		// TODO Auto-generated method stub
+		System.out.println("inside redo of set-string");
 
+		BufferMgr buffMgr = SimpleDB.bufferMgr();
+		Buffer buff = buffMgr.pin(blk);
+		String newVal = buff.getString(offset);
+		System.out.println("The new value to set while REDO inside setString: " + newVal);
+		buff.setString(offset, newVal, txnum, -1);
+		buffMgr.unpin(buff);
 	}
 }

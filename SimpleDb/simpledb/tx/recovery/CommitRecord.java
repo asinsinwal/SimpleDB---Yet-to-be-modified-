@@ -53,4 +53,10 @@ class CommitRecord implements LogRecord {
    public String toString() {
       return "<COMMIT " + txnum + ">";
    }
+
+@Override
+public void redo(int txnum) {
+	// TODO Auto-generated method stub
+	
+}
 }

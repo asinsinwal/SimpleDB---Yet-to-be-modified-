@@ -76,4 +76,10 @@ class SetStringRecord implements LogRecord {
       buff.setString(offset, val, txnum, -1);
       buffMgr.unpin(buff);
    }
+
+@Override
+public void redo(int txnum) {
+	// TODO Auto-generated method stub
+	
+}
 }

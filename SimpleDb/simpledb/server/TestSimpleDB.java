@@ -54,7 +54,7 @@ public class TestSimpleDB {
 
 			// Existing pool
 			System.out.println("Existing buffer pool: ");
-			printBufferPool(basicBufferMgr);
+//			printBufferPool(basicBufferMgr);
 			// Pin a Block
 			System.out.println("pinning blocks:");
 			System.out.println("\tpinning 1");
@@ -73,15 +73,13 @@ public class TestSimpleDB {
 			Buffer buff7 = basicBufferMgr.pin(blk7);
 			System.out.println("\tpinning 8");
 			Buffer buff8 = basicBufferMgr.pin(blk8);
-			// System.out.println("Pinning 9");
-			// Buffer buff9 = basicBufferMgr.pin(blk9);
 			System.out.println("After setting 8 blocks in buffer pool:");
-			printBufferPool(basicBufferMgr);
+//			printBufferPool(basicBufferMgr);
 
 			System.out.println("unpinning blocks");
 			// Unpin a Block
 			basicBufferMgr.unpin(buff3);
-			basicBufferMgr.unpin(buff2);
+			basicBufferMgr.unpin(buff2);     
 			System.out.println("After unpinning in buffer pool:");
 			printBufferPool(basicBufferMgr);
 
@@ -89,7 +87,7 @@ public class TestSimpleDB {
 			// Catching Buffer Exception
 			basicBufferMgr.pin(blk9);
 			System.out.println("After Block replacement in buffer pool:");
-			printBufferPool(basicBufferMgr);
+//			printBufferPool(basicBufferMgr);
 
 		} catch (BufferAbortException e) {
 			System.out.println("BufferAbortException: ");

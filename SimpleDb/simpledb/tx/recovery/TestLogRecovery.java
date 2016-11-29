@@ -51,25 +51,37 @@ public class TestLogRecovery {
 		RecoveryMgr rm2 = new RecoveryMgr(txid2);
 		RecoveryMgr rm3 = new RecoveryMgr(txid3);
 
-		// Commit a transaction.
-		// Recover a transaction.
-		rm.commit();
-		rm2.commit();
-		rm3.commit();
-		rm.recover();
+
 		// Sample setInt
 		BufferMgr basicBufferMgr = new SimpleDB().bufferMgr();
 		Buffer buff = basicBufferMgr.pin(blk1);
 		Buffer buff2 = basicBufferMgr.pin(blk2);
 
-		int lsn = rm.setInt(buff, 4, 1234);
-		buff.setInt(4, 1234, txid, lsn);
-		lsn = rm.setInt(buff2, 5, 1234);
-		buff.setInt(5, 1234, txid, lsn);
+		
+		int valll = buff.getInt(8);
+		System.out.println("vallBef "+valll);
+		int lsn = rm.setInt(buff, 8, 1260);//buffer, offset, newval
+		buff.setInt(8, 1260, txid, lsn);//offset, val, txnum,lsn
+		int valll1 = buff.getInt(8);
+		System.out.println("vallAf "+valll1);
+		//lsn = rm.setInt(buff2, 5, 1234);
+		//buff.setInt(9, 2222, txid, lsn);
 		// Flushing all transactions
 		BufferMgr bm = new BufferMgr(8);
-		bm.flushAll(txid);
+		//bm.flushAll(txid);
 		// Using Log Record Iterator to print records .
+
+
+		System.out.println("Done with RM recover---------------------");
+		// Commit a transaction.
+		// Recover a transaction.
+		rm.commit();
+		//rm2.commit();
+		rm3.commit();
+		System.out.println("Starting RM recover---------------------");
+		rm.recover();		
+		valll1 = buff.getInt(8);
+		System.out.println("vallAf2 "+valll1);
 		LogRecordIterator it = new LogRecordIterator();
 		System.out.println(it.next());
 		System.out.println(it.next());
@@ -77,7 +89,11 @@ public class TestLogRecovery {
 		System.out.println(it.next());
 		System.out.println(it.next());
 		System.out.println(it.next());
-		
+		System.out.println(it.next());
+		System.out.println(it.next());
+		System.out.println(it.next());
+		System.out.println(it.next());
+		System.out.println(it.next());
 	}
 
 }

@@ -128,17 +128,13 @@ public class RecoveryMgr {
          	System.out.println(finishedTxs);
          }
          else if (!finishedTxs.contains(rec.txNumber())){
-       	  System.out.println("Undo Now");
+       	  System.out.print("Undo Now For");
+       	  System.out.println(rec.txNumber());
 
         	 rec.undo(txnum);
       }
       }
-	  System.out.println("Now TXsssssss");
 
-      for(int veh : finishedTxs){
-    	  System.out.println("TXsssssss");
-    	  System.out.println(veh);
-      }
 //      /*iter for redo*/
 //      Iterator<LogRecord> iter1 = new LogRecordIterator();
 //      while (iter1.hasNext()){

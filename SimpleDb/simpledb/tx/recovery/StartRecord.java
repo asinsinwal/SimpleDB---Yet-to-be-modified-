@@ -49,4 +49,10 @@ class StartRecord implements LogRecord {
    public String toString() {
       return "<START " + txnum + ">";
    }
+
+@Override
+public void redo(int txnum) {
+	// TODO Auto-generated method stub
+	
+}
 }

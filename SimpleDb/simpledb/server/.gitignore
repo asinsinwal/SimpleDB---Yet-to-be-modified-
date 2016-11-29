@@ -1,2 +1,5 @@
 /SimpleDB.class
 /Startup.class
+/TestSimpleDB.class
+/TestRecovery.class
+/TestLogRecovery.class

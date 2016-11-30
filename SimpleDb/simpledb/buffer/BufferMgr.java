@@ -125,8 +125,18 @@ public class BufferMgr {
 		return System.currentTimeMillis() - starttime > MAX_TIME;
 	}
 
+	/**
+	 * @return the bufferPoolMap of Basic Buffer Manager
+	 */
 	public Map<Block, Buffer> getBufferPoolMap() {
 		return bufferMgr.getBufferPoolMap();
+	}
+
+	/**
+	 * resets the numAvailable count of Basic Buffer Manager
+	 */
+	public void resetNumAvailable() {
+		bufferMgr.resetNumAvailable();
 	}
 
 }

@@ -64,7 +64,5 @@ class RollbackRecord implements LogRecord {
 	 */
 	@Override
 	public void redo(int txnum) {
-		System.out.println("inside redo of rollback");
-
 	}
 }

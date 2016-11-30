@@ -13,7 +13,7 @@ import simpledb.file.FileMgr;
  *
  */
 class BasicBufferMgr {
-//	 private Buffer[] bufferpool;
+	// private Buffer[] bufferpool;
 	private int numAvailable;
 	private int bufferPoolSize;
 	/*
@@ -165,21 +165,14 @@ class BasicBufferMgr {
 		/**
 		 * Changes to implement the buffer pool using LinkedHashMap
 		 */
-		// System.out.println("\t\tsize of bufferPoolMap while choosing unpinned
-		// buffer: " + bufferPoolMap.size());
 		if (numAvailable > 0) {
 			if (bufferPoolMap.size() < bufferPoolSize) {
 				Buffer buff = new Buffer();
 				// bufferPoolMap.put(null, buff);
-				// System.out.println("\t\t\tcreating new buffer as size is
-				// within limit");
 				return buff;
 			} else {
-				// System.out.println("\t\t\treturning existing buffer.");
 				for (Map.Entry<Block, Buffer> e : bufferPoolMap.entrySet()) {
 					if (!e.getValue().isPinned()) {
-						// System.out.println("\t\t\treturning pinned Buffer: "
-						// + e.getKey());
 						return e.getValue();
 					}
 				}
@@ -197,5 +190,12 @@ class BasicBufferMgr {
 	 */
 	public Map<Block, Buffer> getBufferPoolMap() {
 		return bufferPoolMap;
+	}
+
+	/**
+	 * resets the numAvailable count
+	 */
+	public void resetNumAvailable() {
+		numAvailable = bufferPoolSize;
 	}
 }

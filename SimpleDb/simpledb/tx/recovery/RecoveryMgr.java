@@ -135,6 +135,7 @@ public class RecoveryMgr {
 		Collection<Integer> commitTxns = new ArrayList<Integer>();
 		Iterator<LogRecord> iter = new LogRecordIterator();
 		List<LogRecord> listRecs = new ArrayList<LogRecord>();
+		System.out.println("Running Undo");
 		while (iter.hasNext()) {
 			LogRecord rec = iter.next();
 			if (rec.op() == CHECKPOINT)
@@ -149,20 +150,13 @@ public class RecoveryMgr {
 			else if (!rollbackTxns.contains(rec.txNumber()) && !commitTxns.contains(rec.txNumber()))
 				rec.undo(txnum);
 		}
-		// TODO: do a new while loop which reads the log file from START in
-		// forward order from checkpoint.
 		Collections.reverse(listRecs);
-		System.out.println("The entire log from checkpoint (or starting) is: ");
-		for (LogRecord rec : listRecs) {
-			System.out.println("\t\t" + rec.toString());
-		}
-		System.out.println("REdo-ing now");
+		System.out.println("Running Redo");
 		for (LogRecord rec : listRecs) {
 			boolean nonUpdateRecord = ((rec.op() != COMMIT) && (rec.op() != CHECKPOINT) && (rec.op() != ROLLBACK)
 					&& rec.op() != START);
-//			System.out.println("For txn: " + txnum + "currently reading this record: " + rec.toString() + ", is it on commit list? - " + commitTxns.contains(rec.txNumber()));
 			if (nonUpdateRecord && commitTxns.contains(rec.txNumber())) {
-				System.out.println("This transaction was redo-ed: " + txnum);
+				System.out.println("Tx Id to Redo: " + txnum);
 				rec.redo(txnum);
 			}
 		}

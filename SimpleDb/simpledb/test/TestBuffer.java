@@ -29,10 +29,11 @@ public class TestBuffer {
 	private static final String BINDING_NAME = "simpledb";
 
 	/**
-	 * setting up the resources to be used by the test classes. This method runs
-	 * once before running the test case classes.
+	 * Setting up the resources to be used by the test cases. This method runs
+	 * once before running the test cases.
 	 * 
 	 * @throws RemoteException
+	 *             If some error occurs while binding the registry.
 	 */
 	@BeforeClass
 	public static void setUp() throws RemoteException {
@@ -48,11 +49,13 @@ public class TestBuffer {
 	}
 
 	/**
-	 * releasing the resources to be used by the test classes. This method runs
-	 * once after running all the test case classes.
+	 * Releasing the resources to be used by the test cases. This method runs
+	 * once after running all the test cases
 	 * 
 	 * @throws RemoteException
+	 *             If some error occurs while un-binding the registry.
 	 * @throws NotBoundException
+	 *             If some error occurs while un-binding the registry.
 	 */
 	@AfterClass
 	public static void tearDown() throws RemoteException, NotBoundException {
@@ -64,14 +67,40 @@ public class TestBuffer {
 				"----------------------------------------Test Buffer Tear down done----------------------------------------");
 	}
 
+	/**
+	 * <h2>Test Scenario 1:</h2>
+	 * <p>
+	 * Pin 8 blocks to buffer pool of default size (8), In the following order:
+	 * </p>
+	 * <p>
+	 * <b>0, 1, 2, 3, 4, 5, 6, 7</b>
+	 * </p>
+	 * <p>
+	 * Unpin 2 blocks in the following order:
+	 * </p>
+	 * <p>
+	 * <b>2, 1</b>
+	 * </p>
+	 * <p>
+	 * Pin a new block to buffer pool, Now since Block 1 is the oldest unpinned
+	 * block, it will be replaced.<br>
+	 * This is asserted by using the following assert statements:<br>
+	 * <b>&emsp;&emsp;Assert.assertFalse(basicBufferMgr.getBufferPoolMap().containsKey(blocks[1]));<br>
+	 * </b><b>&emsp;&emsp;Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[8]));<br>
+	 * </b><br>
+	 * which asserts that block 1 is not present in the buffer pool and block 8
+	 * is present in the buffer pool.
+	 * </p>
+	 * 
+	 */
 	@Test
-	public void testScenario1() throws RemoteException {
+	public void testScenario1() {
 		System.out.println("----------Running Buffer Test Scenario 1----------");
 		BufferMgr basicBufferMgr = new SimpleDB().bufferMgr();
 
-		System.out.println("Creating 10 Blocks");
-		Block[] blocks = new Block[10];
-		for (int i = 0; i < 10; i++) {
+		System.out.println("Creating 9 Blocks");
+		Block[] blocks = new Block[9];
+		for (int i = 0; i < 9; i++) {
 			System.out.println("\tCreating Block " + (i + 1));
 			blocks[i] = new Block("filename", i);
 		}
@@ -112,18 +141,39 @@ public class TestBuffer {
 		Assert.assertFalse(basicBufferMgr.getBufferPoolMap().containsKey(blocks[1]));
 		Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[8]));
 		basicBufferMgr.getBufferPoolMap().clear();
-		//TODO: We also need to reset the numAvailable Flag here.
+		basicBufferMgr.resetNumAvailable();
 		System.out.println("----------Buffer Test Scenario 1 Run Complete----------");
 	}
 
+	/**
+	 * <h2>Test Scenario 2:</h2>
+	 * <p>
+	 * Pin 8 blocks to buffer pool of default size (8), In the following order:
+	 * </p>
+	 * <p>
+	 * <b>0, 1, 2, 3, 4, 5, 6, 7</b>
+	 * </p>
+	 * <p>
+	 * Pin a new block to buffer pool, Now since there is no unpinned block in
+	 * the buffer pool, it will throw a BufferAbortException. This is asserted
+	 * by doing a <b>Assert.assertTrue(true)</b> inside the catch block for
+	 * BufferAbortException. <br>
+	 * The Failing case for this test is the line:
+	 * <b>Assert.assertTrue(false)</b> after it tries to pin the 9the block to a
+	 * filled buffer. The assert statement will evaluate to false and fail the
+	 * test case indicating that the BufferAbortException was not thrown as
+	 * expected.<br>
+	 * </p>
+	 * 
+	 */
 	@Test
 	public void testScenario2() {
 		System.out.println("----------Running Buffer Test Scenario 2----------");
 		BufferMgr basicBufferMgr = new SimpleDB().bufferMgr();
 
-		System.out.println("Creating 10 Blocks");
-		Block[] blocks = new Block[10];
-		for (int i = 0; i < 10; i++) {
+		System.out.println("Creating 9 Blocks");
+		Block[] blocks = new Block[9];
+		for (int i = 0; i < 9; i++) {
 			System.out.println("\tCreating Block " + (i + 1));
 			blocks[i] = new Block("filename", i);
 		}
@@ -158,10 +208,37 @@ public class TestBuffer {
 		System.out.println("Buffer Pool after trying to pin new block 8:");
 		printBufferPool(basicBufferMgr);
 		basicBufferMgr.getBufferPoolMap().clear();
-		//TODO: We also need to reset the numAvailable Flag here.
+		basicBufferMgr.resetNumAvailable();
 		System.out.println("----------Buffer Test Scenario 2 Run Complete----------");
 	}
 
+	/**
+	 * <h2>Test Scenario 3:</h2>
+	 * <p>
+	 * Pin 6 blocks to buffer pool of default size (8), In the following order:
+	 * </p>
+	 * <p>
+	 * <b>0, 1, 2, 3, 4, 5</b>
+	 * </p>
+	 * <p>
+	 * Unpin 2 blocks in the following order:
+	 * </p>
+	 * <p>
+	 * <b>2, 1</b>
+	 * </p>
+	 * <p>
+	 * Pin a new block to buffer pool, Now even though Block 1 is the oldest
+	 * unpinned block, we still have available space in buffer pool so, no block
+	 * will be replaced and the new block will be added to the buffer pool.<br>
+	 * This is asserted by using the following assert statements:<br>
+	 * <b>&emsp;&emsp;Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[1]));<br>
+	 * </b><b>&emsp;&emsp;Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[8]));<br>
+	 * </b><br>
+	 * which asserts that block 1 and block 8 both are present in the buffer
+	 * pool.
+	 * </p>
+	 * 
+	 */
 	@Test
 	public void testScenario3() {
 		System.out.println("----------Running Buffer Test Scenario 3----------");
@@ -210,10 +287,39 @@ public class TestBuffer {
 		Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[1]));
 		Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[8]));
 		basicBufferMgr.getBufferPoolMap().clear();
-		//TODO: We also need to reset the numAvailable Flag here.
+		basicBufferMgr.resetNumAvailable();
 		System.out.println("----------Buffer Test Scenario 3 Run Complete----------");
 	}
-	
+
+	/**
+	 * <h2>Test Scenario 4:</h2>
+	 * <p>
+	 * Pin 8 blocks to buffer pool of default size (8), In the following order:
+	 * </p>
+	 * <p>
+	 * <b>0, 1, 2, 3, 4, 5, 6, 7</b>
+	 * </p>
+	 * <p>
+	 * Pin Block 1 again.<br>
+	 * Unpin 2 blocks in the following order:
+	 * </p>
+	 * <p>
+	 * <b>2, 1</b>
+	 * </p>
+	 * <p>
+	 * Pin a new block to buffer pool, Now even though Block 1 is the oldest
+	 * block, it was pinned twice but unpinned only once, so it will not be
+	 * replaced and block 2 will be replaced instead.<br>
+	 * This is asserted by using the following assert statements:<br>
+	 * <b>&emsp;&emsp;Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[1]));<br>
+	 * </b><b>&emsp;&emsp;Assert.assertFalse(basicBufferMgr.getBufferPoolMap().containsKey(blocks[2]));<br>
+	 * </b><b>&emsp;&emsp;Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[8]));<br>
+	 * </b><br>
+	 * which asserts that block 1 and block 8 are present in the buffer pool and
+	 * block 2 is not present in the buffer pool.
+	 * </p>
+	 * 
+	 */
 	@Test
 	public void testScenario4() {
 		System.out.println("----------Running Buffer Test Scenario 4----------");
@@ -238,7 +344,7 @@ public class TestBuffer {
 			System.out.println("\tBlock Pinned to Buffer " + buf);
 			buffers[i] = buf;
 		}
-		
+
 		System.out.println("Pinning Block 1 Again");
 		basicBufferMgr.pin(blocks[1]);
 
@@ -263,14 +369,25 @@ public class TestBuffer {
 		printBufferPool(basicBufferMgr);
 
 		Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[1]));
+		Assert.assertFalse(basicBufferMgr.getBufferPoolMap().containsKey(blocks[2]));
 		Assert.assertTrue(basicBufferMgr.getBufferPoolMap().containsKey(blocks[8]));
 		basicBufferMgr.getBufferPoolMap().clear();
-		//TODO: We also need to reset the numAvailable Flag here.
+		basicBufferMgr.resetNumAvailable();
 		System.out.println("----------Buffer Test Scenario 4 Run Complete----------");
 	}
 
+	/**
+	 * Method to print the contents of buffer pool.
+	 * 
+	 * @param basicBufferMgr
+	 *            the buffer manager through which the buffer pool is to be
+	 *            printed.
+	 */
 	private void printBufferPool(BufferMgr basicBufferMgr) {
 		int i = 0;
+		if (basicBufferMgr.getBufferPoolMap().size() == 0) {
+			System.out.println("Buffer pool is empty");
+		}
 		for (Map.Entry<Block, Buffer> e : basicBufferMgr.getBufferPoolMap().entrySet()) {
 			System.out.println("\t" + ++i + "): " + e.getKey().toString() + " = [" + e.getValue().toString() + "]\t");
 		}
